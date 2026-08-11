@@ -1,0 +1,2 @@
+"""Pipelines idempotents et prudents."""
+

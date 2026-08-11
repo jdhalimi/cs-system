@@ -1,0 +1,9 @@
+.env
+.state/
+data/*
+!data/.gitkeep
+!data/README.md
+__pycache__/
+*.py[cod]
+.pytest_cache/
+site/

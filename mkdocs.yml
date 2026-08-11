@@ -1,0 +1,16 @@
+site_name: cs-system
+site_description: Plateforme de gestion des données du conseil syndical
+site_dir: site
+theme:
+  name: mkdocs
+nav:
+  - Accueil: index.md
+  - Guide utilisateur:
+      - Démarrage: user/getting-started.md
+      - Flux de travail: user/workflows.md
+      - Commandes: user/commands.md
+  - Documentation technique:
+      - Architecture: technical/architecture.md
+      - Données et index: technical/data-model.md
+      - Connecteurs et sécurité: technical/connectors.md
+      - Contribution: technical/contributing.md
