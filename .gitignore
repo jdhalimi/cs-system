@@ -7,3 +7,6 @@ __pycache__/
 *.py[cod]
 .pytest_cache/
 site/
+.coverage
+.DS_Store
+.coverage

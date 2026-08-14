@@ -7,7 +7,12 @@ from cs_system.settings import Settings
 
 
 def _settings(root: Path, documents: Path) -> Settings:
-    return Settings(root, documents, "", None, root / ".state/google.json", "", "", "", "", "", "")
+    return Settings(
+        root=root, citya_documents_dir=documents, drive_folder_id="", google_client_secrets=None,
+        google_token_file=root / ".state/google.json", notion_token="", notion_proprietaires_database_id="",
+        notion_locataires_database_id="", notion_lots_database_id="", citya_email="", citya_password="",
+        citya_documents_url="", citya_immeuble_id="",
+    )
 
 
 def test_document_plan_deduplicates_checksum_and_ignores_new_report(tmp_path: Path):

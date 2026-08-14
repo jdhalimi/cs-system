@@ -3,8 +3,10 @@
 from __future__ import annotations
 
 import json
+import os
 import re
 from dataclasses import dataclass
+from datetime import datetime
 from pathlib import Path
 
 from playwright.sync_api import sync_playwright
@@ -28,6 +30,7 @@ class CityaDocument:
     extension: str
     location: str
     folders: tuple[str, ...]
+    date_created: str | None = None
 
     @property
     def relative_path(self) -> Path:
@@ -88,7 +91,10 @@ class CityaClient:
         result, stack = [], [(root, (root_name,))]
         while stack:
             payload, folders = stack.pop()
-            result.extend(CityaDocument(d["nom"], d.get("extension", ""), d["emplacement"], folders) for d in payload.get("docs", []))
+            result.extend(
+                CityaDocument(d["nom"], d.get("extension", ""), d["emplacement"], folders, d.get("dateCreated") or d.get("dateUpload"))
+                for d in payload.get("docs", [])
+            )
             for child in payload.get("sons", []):
                 data = self._get(GED_BASE_URL + "SearchArborescenceContentServlet", cabinet="true", droits="Conseil syndical", id=child["idArbo"], page=1, resultNumber=500, sortName="DESCENDING_DATE", toJson="true", token=self.token)["payload"]
                 stack.append((data, folders + (child["nom"],)))
@@ -104,6 +110,9 @@ class CityaClient:
         response = self.context.request.get(GED_BASE_URL + "getFileByFTPServlet", params={"token": self.token, "emplacement": location, "cabinet": "true", "nomFile": document.name, "extension": extension}, timeout=120_000)
         if not response.ok: raise RuntimeError(f"Telechargement echoue ({response.status}) : {document.name}")
         target.write_bytes(response.body())
+        if document.date_created:
+            timestamp = datetime.strptime(document.date_created, "%Y-%m-%d %H:%M:%S").timestamp()
+            os.utime(target, (timestamp, timestamp))
         return target
 
 

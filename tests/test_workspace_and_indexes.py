@@ -11,7 +11,8 @@ from cs_system.workspace import Workspace
 def test_workspace_creates_the_documented_source_entity_directories(tmp_path: Path):
     workspace = Workspace(tmp_path)
     workspace.ensure()
-    assert (workspace.exports / "notion" / "contacts").is_dir()
+    assert (workspace.exports / "notion" / "proprietaires").is_dir()
+    assert (workspace.exports / "notion" / "locataires").is_dir()
     assert (workspace.exports / "notion" / "lots").is_dir()
     assert (workspace.exports / "notion" / "factures").is_dir()
     assert (workspace.cache / "google" / "drive").is_dir()

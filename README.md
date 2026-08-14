@@ -42,13 +42,28 @@ cs-system workspace-init
 cs-system sync-index
 
 # Capturer MyCitya dans data/exports/citya/documents (authentification navigateur au besoin)
-cs-system citya-sync --new
+cs-system citya-docs export --new
 
-# Inventorier les documents Citya absents du registre Drive
-cs-system capture-documents
+# Inventorier les documents Citya absents ou perimes par rapport a Drive
+cs-system citya-docs capture
 
 # Envoyer ces documents vers le dossier Drive configure
-cs-system capture-documents --apply
+cs-system citya-docs capture --apply
+
+# Reindexer le contenu reel du dossier Drive sans rien envoyer
+cs-system google-drive index
+
+# Exporter les Google Contacts (dont les tags de classification) en CSV
+cs-system google-contacts export
+
+# Exporter les bases Notion Proprietaires et Locataires en CSV
+cs-system notion-contacts export
+
+# Exporter la base Notion des lots en CSV
+cs-system notion-lots export
+
+# Rapprocher les contacts Google et Notion (--interactive pour confirmer les cas ambigus)
+cs-system match contacts
 
 # Comparer deux exports CSV Google Contacts et Notion
 cs-system compare-contacts google.csv notion.csv --out data/contact-diff.csv

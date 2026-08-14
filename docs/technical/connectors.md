@@ -4,7 +4,16 @@
 
 Google utilise OAuth. Le fichier client peut être partagé avec les autres
 outils de la résidence, mais `cs-system` conserve son jeton dans `.state/`.
-Les scopes doivent rester limités au pipeline exécuté.
+
+Le jeton est partagé entre tous les pipelines Google et accumule les scopes au
+fil des autorisations (Drive, Contacts) : `google_service()` détecte les
+scopes manquants par rapport à ce qui a réellement été accordé et redemande un
+consentement combiné plutôt que d'écraser un scope déjà obtenu.
+
+Le scope Drive est `drive` (accès complet), pas `drive.file` : ce dernier ne
+rend visibles que les fichiers créés par l'application elle-même, ce qui
+empêche d'atteindre un dossier Drive existant (ex. un dossier MyCYTIA déjà
+synchronisé manuellement).
 
 ## Notion
 

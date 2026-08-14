@@ -25,7 +25,9 @@ class Settings:
     google_client_secrets: Path | None
     google_token_file: Path
     notion_token: str
-    notion_contacts_database_id: str
+    notion_proprietaires_database_id: str
+    notion_locataires_database_id: str
+    notion_lots_database_id: str
     citya_email: str
     citya_password: str
     citya_documents_url: str
@@ -50,7 +52,9 @@ def load_settings(root: Path | None = None) -> Settings:
         ),
         google_token_file=_path(root, os.getenv("GOOGLE_TOKEN_FILE", ""), ".state/google-token.json"),
         notion_token=os.getenv("NOTION_TOKEN", "").strip(),
-        notion_contacts_database_id=os.getenv("NOTION_CONTACTS_DATABASE_ID", "").strip(),
+        notion_proprietaires_database_id=os.getenv("NOTION_PROPRIETAIRES_DATABASE_ID", "").strip(),
+        notion_locataires_database_id=os.getenv("NOTION_LOCATAIRES_DATABASE_ID", "").strip(),
+        notion_lots_database_id=os.getenv("NOTION_LOTS_DATABASE_ID", "").strip(),
         citya_email=os.getenv("CITYA_EMAIL", "").strip(),
         citya_password=os.getenv("CITYA_PASSWORD", "").strip(),
         citya_documents_url=os.getenv("CITYA_DOCUMENTS_URL", "").strip(),

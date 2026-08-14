@@ -25,8 +25,14 @@ peut contenir des données personnelles et des documents de la résidence.
 
 Configurer les quatre variables `CITYA_*` dans `.env`, puis exécuter :
 
+`CITYA_IMMEUBLE_ID` n'est pas la référence d'immeuble affichée sur le site
+(ex. `0491`), mais l'identifiant technique encodé dans `CITYA_DOCUMENTS_URL`
+(le premier segment `documents-syndic-<ID>-<...>.html`). Utiliser la
+référence affichée provoque une erreur GED silencieuse (`responseCode: 500`)
+lors de `citya-docs export`.
+
 ```powershell
-mamba run -n cs-system cs-system citya-sync --new
+mamba run -n cs-system cs-system citya-docs export --new
 ```
 
 Le navigateur s'ouvre seulement si nécessaire. Ajouter `--headed` pour le voir

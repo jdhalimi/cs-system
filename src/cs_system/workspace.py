@@ -29,7 +29,7 @@ class Workspace:
         for path in (self.exports, self.cache, self.indexes, self.local, self.reports, self.state):
             path.mkdir(parents=True, exist_ok=True)
         for source, entities in {
-            "notion": ("contacts", "lots", "factures"),
+            "notion": ("proprietaires", "lots", "locataires", "factures"),
             "google": ("contacts", "drive"),
             "citya": ("documents",),
             "forms": ("responses",),
