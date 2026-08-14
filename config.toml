@@ -1,0 +1,10 @@
+# Configuration non secrete de cs-system (versionnee ; les secrets restent dans .env).
+
+[matching]
+# Labels de groupes Google a exclure du rapprochement contacts (contacts hors perimetre).
+ignored_google_labels = [
+    "Ancien", 
+    "Syndic", 
+    "Fournisseurs"]
+
+    

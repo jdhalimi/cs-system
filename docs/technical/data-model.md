@@ -47,15 +47,23 @@ d'identifiants de page, résolues à la volée par `match contacts` via
 `match contacts` lit les quatre exports ci-dessus (Google, Proprietaires,
 Locataires, Lots) et écrit `data/local/contacts-match.csv` par défaut : une
 ligne par identité, avec un statut (`commun`, `rapproche_email`,
-`rapproche_manuel`, `google_seul`, `notion_seul`) et une colonne `anomalies`.
-Les contacts Google du groupe `Fournisseurs` sont exclus avant tout
-rapprochement. C'est un résultat de `data/local/`, reconstructible à
-volonté — il ne modifie aucun export.
+`rapproche_label`, `rapproche_manuel`, `google_seul`, `notion_seul`) et une
+colonne `anomalies`. Les contacts Google appartenant aux groupes listés dans
+`config.toml` (`[matching].ignored_google_labels`, par défaut `Ancien`,
+`Syndic` et `Fournisseurs`) sont exclus avant tout rapprochement. C'est un
+résultat de `data/local/`, reconstructible à volonté — il ne modifie aucun
+export.
 
-Les anomalies s'appuient sur une convention observée dans les groupes Google
+Le rapprochement s'appuie sur une convention observée dans les groupes Google
 de ce compte : un label `Propriétaire <lettre><chiffre>` (ex. `Propriétaire
 A1`) désigne un escalier précis, `Propriétaire P` un parking sans
-localisation. `match contacts` résout, pour chaque personne Notion, l'escalier
-de ses lots (colonne `Escalier` de `lots.csv`, via `_notion_id`) et signale un
-écart si le label Google ne correspond à aucun lot réel de la personne, ou si
-le rôle Google (Propriétaire/Locataire) diverge du rôle Notion.
+localisation. Pour chaque personne Notion, `match contacts` reconstitue
+l'escalier ou le parking attendu à partir de ses lots (colonne `Escalier` et
+`Type` de `lots.csv`, via `_notion_id`) et de son rôle. Ce label reconstitué
+sert d'abord de troisième critère de rapprochement (`rapproche_label`) : quand
+le nom et l'email n'ont rien donné, une fiche Google restante est associée à
+la fiche Notion restante qui reconstitue le même label, à condition que ce
+soit la seule candidate des deux côtés (ambigu sinon, laissé de côté). Une
+fois une paire établie (par nom, email ou label), une divergence entre le
+label Google et les lots réels de la personne, ou entre le rôle Google
+(Propriétaire/Locataire) et le rôle Notion, est signalée en anomalie.

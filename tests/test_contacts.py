@@ -30,7 +30,7 @@ def _settings(root: Path) -> Settings:
         root=root, citya_documents_dir=root / "documents", drive_folder_id="", google_client_secrets=None,
         google_token_file=root / ".state/google.json", notion_token="", notion_proprietaires_database_id="",
         notion_locataires_database_id="", notion_lots_database_id="", citya_email="", citya_password="",
-        citya_documents_url="", citya_immeuble_id="",
+        citya_documents_url="", citya_immeuble_id="", ignored_google_labels=("Ancien", "Fournisseurs"),
     )
 
 
@@ -112,6 +112,46 @@ def test_match_ignores_fournisseurs(tmp_path: Path):
         locataires="Prenom,Nom\n",
     )
     assert match(settings) == []
+
+
+def test_match_ignores_anciens(tmp_path: Path):
+    settings = _settings(tmp_path)
+    _write_exports(
+        settings,
+        google="First Name,Last Name,Labels\nJean,Sorti,Ancien\n",
+        proprietaires="Prenom,Nom\n",
+        locataires="Prenom,Nom\n",
+    )
+    assert match(settings) == []
+
+
+def test_match_pairs_by_reconstructed_label_when_name_and_email_differ(tmp_path: Path):
+    settings = _settings(tmp_path)
+    _write_exports(
+        settings,
+        google="First Name,Last Name,Labels\nJean,Dup,Propriétaire A1\n",
+        proprietaires="Prenom,Nom,Lots\nJean,Dupont,lot-1\n",
+        locataires="Prenom,Nom\n",
+        lots="_notion_id,Type,Escalier\nlot-1,appart,A1\n",
+    )
+    rows = {row["cle"]: row for row in match(settings)}
+    assert rows["jeandup"]["statut"] == "rapproche_label"
+    assert rows["jeandup"]["notion"] == "Jean Dupont (proprietaire)"
+
+
+def test_match_leaves_ambiguous_label_unmatched(tmp_path: Path):
+    settings = _settings(tmp_path)
+    _write_exports(
+        settings,
+        google="First Name,Last Name,Labels\nJean,Dup,Propriétaire A1\n",
+        proprietaires="Prenom,Nom,Lots\nAlice,Un,lot-1\nBob,Deux,lot-2\n",
+        locataires="Prenom,Nom\n",
+        lots="_notion_id,Type,Escalier\nlot-1,appart,A1\nlot-2,appart,A1\n",
+    )
+    rows = {row["cle"]: row for row in match(settings)}
+    assert rows["jeandup"]["statut"] == "google_seul"
+    assert rows["aliceun"]["statut"] == "notion_seul"
+    assert rows["bobdeux"]["statut"] == "notion_seul"
 
 
 def test_match_reports_escalier_role_and_phone_anomalies(tmp_path: Path):

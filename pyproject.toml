@@ -3,7 +3,7 @@ name = "cs-system"
 version = "0.1.0"
 description = "Orchestration des donnees du conseil syndical"
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 dependencies = [
     "google-api-python-client>=2.0",
     "google-auth-oauthlib>=1.0",

@@ -34,6 +34,8 @@ Ne pas utiliser l'interpréteur système ni créer un environnement virtuel loca
 - Copier `.env.example` en `.env` et ne jamais versionner ce dernier.
 - Les jetons OAuth Google, le secret Notion et les identifiants MyCitya restent
   dans `.env` ou `.state/` ; ne jamais les afficher dans une sortie ou un rapport.
+- `config.toml` (versionné, à la racine) porte les règles métier non secrètes
+  (ex. `[matching].ignored_google_labels`) ; ne jamais y placer de secret.
 - Les appels API et les authentifications navigateur ne sont pas des tests : ne
   les déclencher que lorsqu'ils sont nécessaires à la tâche demandée.
 

@@ -20,6 +20,17 @@ def test_settings_loads_relative_paths_from_dotenv(tmp_path: Path, monkeypatch):
     assert settings.google_token_file == tmp_path / "tokens" / "google.json"
     assert settings.citya_documents_dir == tmp_path / "exports" / "citya"
     assert settings.notion_token == "token-test"
+    assert settings.ignored_google_labels == ()
+
+
+def test_settings_loads_ignored_google_labels_from_config_toml(tmp_path: Path, monkeypatch):
+    monkeypatch.delenv("NOTION_TOKEN", raising=False)
+    (tmp_path / "config.toml").write_text(
+        '[matching]\nignored_google_labels = ["Ancien", "Fournisseurs"]\n',
+        encoding="utf-8",
+    )
+    settings = load_settings(tmp_path)
+    assert settings.ignored_google_labels == ("Ancien", "Fournisseurs")
 
 
 def test_ledger_loads_missing_file_and_round_trips_json(tmp_path: Path):

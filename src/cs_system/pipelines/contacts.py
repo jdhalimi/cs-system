@@ -13,11 +13,10 @@ from .lots import read_lots
 
 STATUS_COMMUN = "commun"
 STATUS_EMAIL = "rapproche_email"
+STATUS_LABEL = "rapproche_label"
 STATUS_MANUEL = "rapproche_manuel"
 STATUS_GOOGLE_SEUL = "google_seul"
 STATUS_NOTION_SEUL = "notion_seul"
-
-IGNORED_GOOGLE_LABELS = {"Fournisseurs"}
 
 # Convention constatee dans les groupes Google : "Propriétaire A1"/"Locataire B3" signifie
 # l'escalier 1 du batiment A ; "Propriétaire P" signifie un parking, sans localisation precise.
@@ -249,6 +248,35 @@ def _match_by_email(google: dict, notion: dict) -> list[tuple[str, str]]:
     return pairs
 
 
+def _notion_location_keys(entry: dict, lots_by_id: dict[str, dict[str, str]]) -> set[tuple[str, str]]:
+    """Reconstitue les labels Google attendus (role, escalier ou 'parking') a partir des lots Notion de la fiche."""
+    roles = set(entry.get("role", "").split("+")) - {""}
+    tokens = _location_tokens(entry, lots_by_id)
+    return {(role, token) for role in roles for token in tokens}
+
+
+def _match_by_label(google: dict, notion: dict, lots_by_id: dict[str, dict[str, str]]) -> list[tuple[str, str]]:
+    """Associe les entrees restantes dont le label Google (role + escalier/parking, reconstitue cote
+    Notion via la jointure lots) ne correspond qu'a une seule fiche de chaque cote."""
+    notion_by_location: dict[tuple[str, str], list[str]] = {}
+    for key, entry in notion.items():
+        for location_key in _notion_location_keys(entry, lots_by_id):
+            notion_by_location.setdefault(location_key, []).append(key)
+
+    pairs = []
+    for key, entry in google.items():
+        hints = _location_hints(entry.get("Labels", ""))
+        if not hints:
+            continue
+        candidates: set[str] | None = None
+        for hint in hints:
+            matches = set(notion_by_location.get(hint, []))
+            candidates = matches if candidates is None else candidates & matches
+        if candidates and len(candidates) == 1:
+            pairs.append((key, next(iter(candidates))))
+    return pairs
+
+
 def _matched_row(key: str, status: str, google_entry: dict, notion_entry: dict, lots_by_id: dict[str, dict[str, str]]) -> dict[str, str]:
     return {
         "cle": key, "statut": status, "google": google_entry["nom"], "notion": _notion_label(notion_entry),
@@ -301,9 +329,10 @@ def match(settings: Settings, interactive: bool = False, prompt: Callable[[str],
             raise FileNotFoundError(f"Export introuvable : {path}. Lancer d'abord google-contacts export et notion-contacts export.")
     lots_by_id = read_lots(settings)
 
+    ignored_labels = set(settings.ignored_google_labels)
     google = {
         key: entry for key, entry in _read(google_path, "google").items()
-        if not IGNORED_GOOGLE_LABELS & set(entry.get("Labels", "").split(" ::: "))
+        if not ignored_labels & set(entry.get("Labels", "").split(" ::: "))
     }
     proprietaires = {key: {**entry, "role": "proprietaire"} for key, entry in _read(proprietaires_path, "notion").items()}
     locataires = {key: {**entry, "role": "locataire"} for key, entry in _read(locataires_path, "notion").items()}
@@ -322,6 +351,14 @@ def match(settings: Settings, interactive: bool = False, prompt: Callable[[str],
         if google_key not in google_left or notion_key not in notion_left:
             continue
         results[google_key] = _matched_row(google_key, STATUS_EMAIL, google_left[google_key], notion_left[notion_key], lots_by_id)
+        del google_left[google_key]
+        del notion_left[notion_key]
+
+    label_pairs = _match_by_label(google_left, notion_left, lots_by_id)
+    for google_key, notion_key in label_pairs:
+        if google_key not in google_left or notion_key not in notion_left:
+            continue
+        results[google_key] = _matched_row(google_key, STATUS_LABEL, google_left[google_key], notion_left[notion_key], lots_by_id)
         del google_left[google_key]
         del notion_left[notion_key]
 

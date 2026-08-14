@@ -1,7 +1,8 @@
 from __future__ import annotations
 
 import os
-from dataclasses import dataclass
+import tomllib
+from dataclasses import dataclass, field
 from pathlib import Path
 
 try:
@@ -15,6 +16,15 @@ except ImportError:  # La CLI reste lisible avant l'installation des dependances
                 continue
             key, value = line.split("=", 1)
             os.environ.setdefault(key.strip(), value.strip().strip("\"'"))
+
+
+def _load_config(root: Path) -> dict:
+    """Lit config.toml (regles metier non secretes, versionnees). Absent : configuration vide."""
+    path = root / "config.toml"
+    if not path.exists():
+        return {}
+    with path.open("rb") as stream:
+        return tomllib.load(stream)
 
 
 @dataclass(frozen=True)
@@ -32,6 +42,7 @@ class Settings:
     citya_password: str
     citya_documents_url: str
     citya_immeuble_id: str
+    ignored_google_labels: tuple[str, ...] = field(default_factory=tuple)
 
 
 def _path(root: Path, value: str, default: str) -> Path:
@@ -42,6 +53,8 @@ def _path(root: Path, value: str, default: str) -> Path:
 def load_settings(root: Path | None = None) -> Settings:
     root = (root or Path.cwd()).resolve()
     load_dotenv(root / ".env")
+    config = _load_config(root)
+    matching_config = config.get("matching", {})
     return Settings(
         root=root,
         citya_documents_dir=_path(root, os.getenv("CITYA_DOCUMENTS_DIR", ""), "data/exports/citya/documents"),
@@ -59,4 +72,5 @@ def load_settings(root: Path | None = None) -> Settings:
         citya_password=os.getenv("CITYA_PASSWORD", "").strip(),
         citya_documents_url=os.getenv("CITYA_DOCUMENTS_URL", "").strip(),
         citya_immeuble_id=os.getenv("CITYA_IMMEUBLE_ID", "").strip(),
+        ignored_google_labels=tuple(matching_config.get("ignored_google_labels", [])),
     )
