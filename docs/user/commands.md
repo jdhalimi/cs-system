@@ -10,39 +10,44 @@ cs-system sync-index [--source notion|google|citya|forms]
 ## Citya et Drive
 
 ```powershell
-cs-system citya-docs export [--new] [--headed]
-cs-system citya-docs capture [--apply]
-cs-system google-drive index
+cs-system citya export [--new] [--headed]
+cs-system citya capture [--apply]
+cs-system google export --scope drive
 ```
 
-`google-drive index` reindexe le contenu reel du dossier Drive configure (sans rien
-envoyer) dans `data/exports/google/drive/manifest.json`. `citya-docs capture`
-s'en sert, avec les empreintes SHA-256 et les dates des documents, pour ne
-proposer que les documents realement absents ou mis a jour cote Citya.
+`google export --scope drive` reindexe le contenu reel du dossier Drive configure
+(sans rien envoyer) dans `data/exports/google/drive/manifest.json`. `citya
+capture` s'en sert, avec les empreintes SHA-256 et les dates des documents,
+pour ne proposer que les documents realement absents ou mis a jour cote
+Citya.
 
-## Google Contacts
+## Google
 
 ```powershell
-cs-system google-contacts export
+cs-system google export [--scope contacts,drive]
 ```
 
-Exporte les contacts Google (noms, emails, telephones et tags de
-classification issus des groupes de contacts) dans
+Sans `--scope`, exporte/reindexe tout : les Google Contacts (noms, emails,
+telephones et tags de classification issus des groupes de contacts) dans
 `data/exports/google/contacts/contacts.csv`, au format compatible avec
-`compare-contacts`.
+`compare-contacts`, et le dossier Drive (voir ci-dessus). `--scope` limite a
+un sous-ensemble separe par des virgules, ex. `--scope contacts`.
 
-## Notion Contacts et Lots
+## Notion
 
 ```powershell
-cs-system notion-contacts export
-cs-system notion-lots export
+cs-system notion export [--scope slug1,slug2,...]
 ```
 
-`notion-contacts export` exporte les bases Notion `NOTION_PROPRIETAIRES_DATABASE_ID`
-et `NOTION_LOCATAIRES_DATABASE_ID` telles quelles (une colonne par propriete
-Notion) dans `data/exports/notion/proprietaires/proprietaires.csv` et
-`data/exports/notion/locataires/locataires.csv`. `notion-lots export` fait de
-meme pour `NOTION_LOTS_DATABASE_ID` dans `data/exports/notion/lots/lots.csv`.
+Sans `--scope`, decouvre et exporte telles quelles (une colonne par propriete
+Notion) **toutes** les bases Notion partagees avec l'integration — aucune
+configuration prealable n'est necessaire cote `cs-system` : partager une
+nouvelle base dans Notion suffit a ce qu'elle apparaisse au prochain export.
+Chaque base est ecrite dans `data/exports/notion/<slug>/<slug>.csv`, ou
+`<slug>` est son titre Notion normalise (minuscule, espaces remplaces par
+`_`, accents retires) — ex. `Propriétaires` -> `proprietaires`, `Factures
+2025` -> `factures_2025`. `--scope` limite l'export a un sous-ensemble de
+slugs separes par des virgules, ex. `--scope lots,factures_2025`.
 
 ## Rapprochements
 

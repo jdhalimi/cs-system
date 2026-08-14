@@ -41,7 +41,10 @@ class CityaDocument:
 class CityaClient:
     def __init__(self, settings: Settings, headed: bool = False):
         if not all((settings.citya_email, settings.citya_password, settings.citya_documents_url, settings.citya_immeuble_id)):
-            raise ValueError("Configurer CITYA_EMAIL, CITYA_PASSWORD, CITYA_DOCUMENTS_URL et CITYA_IMMEUBLE_ID dans .env.")
+            raise ValueError(
+                "Configurer CITYA_EMAIL et CITYA_PASSWORD dans .env, ainsi que documents_url et "
+                "immeuble_id dans config.toml [citya]."
+            )
         self.settings, self.headed = settings, headed
         self._pw = self.browser = self.context = self.page = self.token = None
 

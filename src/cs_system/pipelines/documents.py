@@ -35,7 +35,10 @@ def drive_index_path(settings: Settings) -> Path:
 def sync_drive_index(settings: Settings) -> dict[str, dict]:
     """Reindexe le contenu reel du dossier Drive inbox dans data/exports/google/drive."""
     if not settings.drive_folder_id or not settings.google_client_secrets:
-        raise ValueError("Configurer GOOGLE_DRIVE_INBOX_FOLDER_ID et GOOGLE_CLIENT_SECRETS avant google-drive index.")
+        raise ValueError(
+            "Configurer drive_inbox_folder_id dans config.toml [google] et GOOGLE_CLIENT_SECRETS "
+            "dans .env avant google export --scope drive."
+        )
     service = drive_service(settings.google_client_secrets, settings.google_token_file)
     files = list_drive_files(service, settings.drive_folder_id)
     index = {
@@ -112,7 +115,10 @@ def run(settings: Settings, apply: bool) -> list[DocumentPlan]:
     if not apply or not plans:
         return plans
     if not settings.drive_folder_id or not settings.google_client_secrets:
-        raise ValueError("Configurer GOOGLE_DRIVE_INBOX_FOLDER_ID et GOOGLE_CLIENT_SECRETS avant --apply.")
+        raise ValueError(
+            "Configurer drive_inbox_folder_id dans config.toml [google] et GOOGLE_CLIENT_SECRETS "
+            "dans .env avant --apply."
+        )
     service = drive_service(settings.google_client_secrets, settings.google_token_file)
     ledger_path = settings.root / ".state" / "documents.json"
     ledger = load(ledger_path)

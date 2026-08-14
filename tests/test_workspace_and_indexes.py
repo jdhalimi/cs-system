@@ -14,7 +14,6 @@ def test_workspace_creates_the_documented_source_entity_directories(tmp_path: Pa
     assert (workspace.exports / "notion" / "proprietaires").is_dir()
     assert (workspace.exports / "notion" / "locataires").is_dir()
     assert (workspace.exports / "notion" / "lots").is_dir()
-    assert (workspace.exports / "notion" / "factures").is_dir()
     assert (workspace.cache / "google" / "drive").is_dir()
     assert workspace.reports.is_dir()
     assert workspace.state.is_dir()

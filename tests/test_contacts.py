@@ -28,8 +28,7 @@ def test_compare_handles_google_and_notion_headers(tmp_path: Path):
 def _settings(root: Path) -> Settings:
     return Settings(
         root=root, citya_documents_dir=root / "documents", drive_folder_id="", google_client_secrets=None,
-        google_token_file=root / ".state/google.json", notion_token="", notion_proprietaires_database_id="",
-        notion_locataires_database_id="", notion_lots_database_id="", citya_email="", citya_password="",
+        google_token_file=root / ".state/google.json", notion_token="", citya_email="", citya_password="",
         citya_documents_url="", citya_immeuble_id="", ignored_google_labels=("Ancien", "Fournisseurs"),
     )
 

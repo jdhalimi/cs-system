@@ -24,22 +24,28 @@ pas être traitée comme un identifiant métier.
 
 `data/exports/google/drive/manifest.json` est le relevé réel du dossier Drive
 configuré (chemin, id, empreinte si connue, date de dépôt), régénéré par
-`google-drive index` ou après chaque `citya-docs capture --apply`. Les fichiers qui
-n'ont pas été déposés par `cs-system` (synchronisation manuelle) n'ont pas
-d'empreinte : le dédoublonnage retombe alors sur une correspondance de chemin,
-arbitrée par comparaison de dates (cf. guide des flux de travail).
+`google export --scope drive` (inclus par défaut dans `google export`) ou
+après chaque `citya capture --apply`. Les fichiers qui n'ont pas été
+déposés par `cs-system` (synchronisation manuelle) n'ont pas d'empreinte : le
+dédoublonnage retombe alors sur une correspondance de chemin, arbitrée par
+comparaison de dates (cf. guide des flux de travail).
 
 `data/exports/google/contacts/contacts.csv` est l'export des Google Contacts
-(`google-contacts export`), au format des exports Google natifs.
+(`google export --scope contacts`), au format des exports Google natifs.
 
 ## Exports Notion
 
-`notion-contacts export` écrit `data/exports/notion/proprietaires/proprietaires.csv`
-et `data/exports/notion/locataires/locataires.csv` ; `notion-lots export` écrit
-`data/exports/notion/lots/lots.csv`. Chaque export porte une colonne
-`_notion_id` (identifiant de page Notion) en plus des propriétés telles
-quelles ; les relations (`Lots`, `Lots loues`) restent des listes
-d'identifiants de page, résolues à la volée par `match contacts` via
+`notion export` découvre (recherche Notion, filtrée sur les bases partagées
+avec l'intégration) et écrit chaque base dans
+`data/exports/notion/<slug>/<slug>.csv`, où `<slug>` est le titre Notion
+normalisé (minuscule, espaces remplacés par `_`, accents retirés). Aucun
+identifiant de base n'est configuré côté `cs-system` : `match contacts`
+suppose seulement la présence de `proprietaires`, `locataires` et `lots`
+(les titres Notion réels `Propriétaires`, `Locataires`, `Lots` s'y
+normalisent). Chaque export porte une colonne `_notion_id` (identifiant de
+page Notion) en plus des propriétés telles quelles ; les relations (`Lots`,
+`Lots loues`) restent des listes d'identifiants de page, résolues à la volée
+par `match contacts` via
 `_notion_id` — jamais réécrites dans les exports eux-mêmes.
 
 ## Rapprochement des contacts

@@ -33,6 +33,29 @@ def test_settings_loads_ignored_google_labels_from_config_toml(tmp_path: Path, m
     assert settings.ignored_google_labels == ("Ancien", "Fournisseurs")
 
 
+def test_settings_loads_non_secret_ids_from_config_toml(tmp_path: Path, monkeypatch):
+    for key in ("GOOGLE_DRIVE_INBOX_FOLDER_ID", "CITYA_IMMEUBLE_ID"):
+        monkeypatch.delenv(key, raising=False)
+    (tmp_path / "config.toml").write_text(
+        "[google]\n"
+        'drive_inbox_folder_id = "folder-id"\n'
+        "[citya]\n"
+        'immeuble_id = "immeuble-id"\n'
+        'documents_url = "https://example.invalid/documents"\n',
+        encoding="utf-8",
+    )
+    settings = load_settings(tmp_path)
+    assert settings.drive_folder_id == "folder-id"
+    assert settings.citya_immeuble_id == "immeuble-id"
+    assert settings.citya_documents_url == "https://example.invalid/documents"
+
+
+def test_settings_defaults_ids_to_empty_without_config_toml(tmp_path: Path):
+    settings = load_settings(tmp_path)
+    assert settings.drive_folder_id == ""
+    assert settings.citya_immeuble_id == ""
+
+
 def test_ledger_loads_missing_file_and_round_trips_json(tmp_path: Path):
     path = tmp_path / ".state" / "ledger.json"
     assert load(path) == {}

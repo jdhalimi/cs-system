@@ -20,9 +20,13 @@ mamba run -n cs-system cs-system --help
 Copy-Item .env.example .env
 ```
 
-Renseigner les identifiants de dossier et les jetons dans `.env`. Le fichier OAuth
-Google peut pointer vers celui deja utilise par `cs-contacts`, mais `cs-system`
-conserve son propre jeton, avec uniquement les scopes necessaires.
+Renseigner les jetons et identifiants de connexion (secrets) dans `.env`, et
+les identifiants non secrets (dossier Drive, immeuble et URL Citya) dans
+`config.toml`. Les bases Notion n'ont besoin d'aucune configuration : partager
+une base avec l'integration dans Notion suffit a ce qu'elle soit exportee.
+Le fichier OAuth Google peut pointer vers celui deja utilise par
+`cs-contacts`, mais `cs-system` conserve son propre jeton, avec uniquement
+les scopes necessaires.
 
 Raccourcis disponibles avec GNU Make :
 
@@ -42,25 +46,25 @@ cs-system workspace-init
 cs-system sync-index
 
 # Capturer MyCitya dans data/exports/citya/documents (authentification navigateur au besoin)
-cs-system citya-docs export --new
+cs-system citya export --new
 
 # Inventorier les documents Citya absents ou perimes par rapport a Drive
-cs-system citya-docs capture
+cs-system citya capture
 
 # Envoyer ces documents vers le dossier Drive configure
-cs-system citya-docs capture --apply
+cs-system citya capture --apply
 
 # Reindexer le contenu reel du dossier Drive sans rien envoyer
-cs-system google-drive index
+cs-system google export --scope drive
 
 # Exporter les Google Contacts (dont les tags de classification) en CSV
-cs-system google-contacts export
+cs-system google export --scope contacts
 
-# Exporter les bases Notion Proprietaires et Locataires en CSV
-cs-system notion-contacts export
+# Decouvrir et exporter toutes les bases Notion partagees avec l'integration en CSV
+cs-system notion export
 
-# Exporter la base Notion des lots en CSV
-cs-system notion-lots export
+# Exporter uniquement un sous-ensemble (slugs derives du titre Notion)
+cs-system notion export --scope lots,proprietaires
 
 # Rapprocher les contacts Google et Notion (--interactive pour confirmer les cas ambigus)
 cs-system match contacts

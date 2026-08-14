@@ -29,7 +29,9 @@ class Workspace:
         for path in (self.exports, self.cache, self.indexes, self.local, self.reports, self.state):
             path.mkdir(parents=True, exist_ok=True)
         for source, entities in {
-            "notion": ("proprietaires", "lots", "locataires", "factures"),
+            # Notion : proprietaires/lots/locataires sont necessaires a `match contacts` ; les autres
+            # bases partagees avec l'integration sont decouvertes et creees a la volee par `notion export`.
+            "notion": ("proprietaires", "lots", "locataires"),
             "google": ("contacts", "drive"),
             "citya": ("documents",),
             "forms": ("responses",),

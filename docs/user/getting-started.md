@@ -23,16 +23,18 @@ peut contenir des données personnelles et des documents de la résidence.
 
 ## Première capture Citya
 
-Configurer les quatre variables `CITYA_*` dans `.env`, puis exécuter :
+Configurer `CITYA_EMAIL` et `CITYA_PASSWORD` dans `.env`, ainsi que
+`documents_url` et `immeuble_id` dans `config.toml` (`[citya]`), puis
+exécuter :
 
-`CITYA_IMMEUBLE_ID` n'est pas la référence d'immeuble affichée sur le site
-(ex. `0491`), mais l'identifiant technique encodé dans `CITYA_DOCUMENTS_URL`
+`immeuble_id` n'est pas la référence d'immeuble affichée sur le site
+(ex. `0491`), mais l'identifiant technique encodé dans `documents_url`
 (le premier segment `documents-syndic-<ID>-<...>.html`). Utiliser la
 référence affichée provoque une erreur GED silencieuse (`responseCode: 500`)
-lors de `citya-docs export`.
+lors de `citya export`.
 
 ```powershell
-mamba run -n cs-system cs-system citya-docs export --new
+mamba run -n cs-system cs-system citya export --new
 ```
 
 Le navigateur s'ouvre seulement si nécessaire. Ajouter `--headed` pour le voir

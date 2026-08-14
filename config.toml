@@ -3,8 +3,15 @@
 [matching]
 # Labels de groupes Google a exclure du rapprochement contacts (contacts hors perimetre).
 ignored_google_labels = [
-    "Ancien", 
-    "Syndic", 
+    "Ancien",
+    "Syndic",
     "Fournisseurs"]
 
-    
+[google]
+# Dossier Drive inbox (non secret ; les identifiants OAuth restent dans .env).
+drive_inbox_folder_id = "1vNmacsoidUqHXHyNLa-kCyAxSu-8o2_R"
+
+[citya]
+# Identifiant d'immeuble et URL Documents MyCitya (non secrets ; email/mot de passe restent dans .env).
+immeuble_id = "8tlK2I1iMytFZQ24t8lx7w=="
+documents_url = "https://my.citya.com/V5/documents-syndic-8tlK2I1iMytFZQ24t8lx7w==-EfiSCB6SnMbVHK5xUuahoA==.html"

@@ -7,9 +7,9 @@ from pathlib import Path
 from typing import Callable
 
 from ..connectors.google import list_contact_group_names, list_people
-from ..connectors.notion import export_table
 from ..settings import Settings
 from .lots import read_lots
+from .notion import notion_export_path
 
 STATUS_COMMUN = "commun"
 STATUS_EMAIL = "rapproche_email"
@@ -105,18 +105,11 @@ def export_google_contacts(settings: Settings) -> Path:
 
 
 def notion_proprietaires_export_path(settings: Settings) -> Path:
-    return settings.root / "data" / "exports" / "notion" / "proprietaires" / "proprietaires.csv"
+    return notion_export_path(settings, "proprietaires")
 
 
 def notion_locataires_export_path(settings: Settings) -> Path:
-    return settings.root / "data" / "exports" / "notion" / "locataires" / "locataires.csv"
-
-
-def export_notion_contacts(settings: Settings) -> tuple[Path, Path]:
-    """Exporte les bases Notion Proprietaires et Locataires en CSV, sans rien y ecrire."""
-    proprietaires = export_table(settings.notion_token, settings.notion_proprietaires_database_id, notion_proprietaires_export_path(settings))
-    locataires = export_table(settings.notion_token, settings.notion_locataires_database_id, notion_locataires_export_path(settings))
-    return proprietaires, locataires
+    return notion_export_path(settings, "locataires")
 
 
 def compare(google_csv: Path, notion_csv: Path) -> list[dict[str, str]]:
@@ -326,7 +319,7 @@ def match(settings: Settings, interactive: bool = False, prompt: Callable[[str],
     locataires_path = notion_locataires_export_path(settings)
     for path in (google_path, proprietaires_path, locataires_path):
         if not path.exists():
-            raise FileNotFoundError(f"Export introuvable : {path}. Lancer d'abord google-contacts export et notion-contacts export.")
+            raise FileNotFoundError(f"Export introuvable : {path}. Lancer d'abord google export --scope contacts et notion export.")
     lots_by_id = read_lots(settings)
 
     ignored_labels = set(settings.ignored_google_labels)

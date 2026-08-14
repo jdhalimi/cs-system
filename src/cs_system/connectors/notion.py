@@ -2,10 +2,49 @@ from __future__ import annotations
 
 import csv
 import json
+import re
+import unicodedata
 import urllib.request
 from pathlib import Path
 
 NOTION_VERSION = "2022-06-28"
+
+
+def list_databases(token: str) -> list[dict]:
+    """Liste les bases Notion partagees avec l'integration (objets database bruts de l'API Search)."""
+    databases: list[dict] = []
+    cursor = None
+    while True:
+        payload = {"filter": {"property": "object", "value": "database"}, "page_size": 100}
+        if cursor:
+            payload["start_cursor"] = cursor
+        request = urllib.request.Request(
+            "https://api.notion.com/v1/search",
+            data=json.dumps(payload).encode("utf-8"),
+            method="POST",
+            headers={
+                "Authorization": f"Bearer {token}",
+                "Notion-Version": NOTION_VERSION,
+                "Content-Type": "application/json",
+            },
+        )
+        with urllib.request.urlopen(request, timeout=60) as response:
+            data = json.load(response)
+        databases.extend(data.get("results", []))
+        cursor = data.get("next_cursor")
+        if not data.get("has_more"):
+            return databases
+
+
+def database_title(database: dict) -> str:
+    """Titre en clair d'une base Notion (concatenation des segments de rich text du titre)."""
+    return "".join(part.get("plain_text", "") for part in database.get("title", [])).strip()
+
+
+def slugify(title: str) -> str:
+    """Nom de fichier stable pour une base Notion : minuscule, espaces en '_', accents retires."""
+    ascii_title = unicodedata.normalize("NFKD", title).encode("ascii", "ignore").decode("ascii")
+    return re.sub(r"\s+", "_", ascii_title.strip().lower())
 
 
 def query_database(token: str, database_id: str) -> list[dict]:

@@ -9,8 +9,7 @@ from cs_system.settings import Settings
 def _settings(root: Path, documents: Path) -> Settings:
     return Settings(
         root=root, citya_documents_dir=documents, drive_folder_id="", google_client_secrets=None,
-        google_token_file=root / ".state/google.json", notion_token="", notion_proprietaires_database_id="",
-        notion_locataires_database_id="", notion_lots_database_id="", citya_email="", citya_password="",
+        google_token_file=root / ".state/google.json", notion_token="", citya_email="", citya_password="",
         citya_documents_url="", citya_immeuble_id="",
     )
 
@@ -36,5 +35,5 @@ def test_document_apply_requires_drive_configuration(tmp_path: Path):
     documents = tmp_path / "documents"
     documents.mkdir()
     (documents / "a.pdf").write_bytes(b"document")
-    with pytest.raises(ValueError, match="GOOGLE_DRIVE"):
+    with pytest.raises(ValueError, match="drive_inbox_folder_id"):
         run(_settings(tmp_path, documents), apply=True)
